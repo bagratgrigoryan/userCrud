@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Users;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -119,6 +119,21 @@ class UserController extends Controller
             "email"=>$user->email,
             "age" => $user->age,
         ]);
+    }
 
+    public function UploadImage(Request $req)
+    {
+        $user = Users::where('remember_token', $req->header('Authorization'))->first();
+        if (empty($user)) {
+            return response()->json(["status" => "false", "message" => "Something Went Wrong"]);
+        }
+        if ($req->hasFile('avatar')) {
+            $image_name = time() . "." . $req->file('avatar')->extension();
+            $req->avatar->move(public_path('images/avatar'), $image_name);
+            $user->avatar = $image_name;
+            $user->save();
+
+            return response()->json(['status'=>'success','image' => asset('images/avatar' . $image_name)]);
+        } else return response()->json(["fuck you"],400);
     }
 }

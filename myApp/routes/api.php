@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ImageController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,3 +21,4 @@ Route::put('/users/{id}', 'UserController@UpdateUser');
 Route::delete('/users/{id}', 'UserController@DeleteUser');
 Route::post('/users/login','UserController@LogInUser');
 Route::post('/users/authorization','UserController@Authorization');
+Route::post('/users/avatar','UserController@UploadImage');
