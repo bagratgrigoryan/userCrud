@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Schema;
 
 class CreateImagesTable extends Migration
@@ -16,17 +15,12 @@ class CreateImagesTable extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->
-            onDelete('cascade');
-            $table->string('image');
+            $table->foreign('user_id')->on('users')
+                ->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
-    }
-
-    public function Users()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 
     /**

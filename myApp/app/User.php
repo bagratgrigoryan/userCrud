@@ -3,9 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\Images;
 
-class Users extends Model
+
+class User extends Model
 {
     protected $fillable = [
         'first_name',
@@ -14,10 +14,11 @@ class Users extends Model
         'password',
         'age',
         'phone',
-        'avatar'
     ];
-    public function Users()
+
+    public function images()
     {
-        return $this->hasMany(Images::class, 'user_id');
+        return $this->hasMany(Image::class, 'user_id');
     }
+
 }

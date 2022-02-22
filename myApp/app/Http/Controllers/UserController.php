@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Users;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -19,7 +20,10 @@ class UserController extends Controller
         if ($validation->fails()) {
             return response()->json($validation->errors()->messages(), 400);
         }
-        $user = new Users();
+        if (empty($req->avatar)){
+            $image_name = 'default.jpg';
+        }else $image_name = $req->avatar->getClientOriginalExtension();
+        $user = new User();
         $pass = md5($req->password);
         $user->first_name = $req->firstName;
         $user->last_name = $req->lastName;
@@ -28,7 +32,9 @@ class UserController extends Controller
         $user->password = $pass;
         $user->age = $req->age;
         $user->save();
-
+        $user->images()->create([
+            'nmae'=>$image_name
+        ]);
         return response()->json([
             "status" => "success",
             "user" => $user
@@ -37,7 +43,7 @@ class UserController extends Controller
 
     public function ReadUser()
     {
-        $user = Users::all();
+        $user = User::all();
         return response()->json(['data' => $user]);
     }
 
@@ -54,7 +60,7 @@ class UserController extends Controller
         if ($validation->fails()) {
             return response()->json($validation->errors()->messages(), 400);
         }
-        $user = Users::find($id);
+        $user = User::find($id);
         if (empty($user)){
             return response()->json(["status"=>"false", "message"=> "Something Went Wrong"]);
         }
@@ -84,7 +90,7 @@ class UserController extends Controller
 
     public function DeleteUser($id)
     {
-        $user = Users::find($id);
+        $user = User::find($id);
         if ($user) {
             $user->delete();
             return response()->json(["status" => "deleted"]);
@@ -94,7 +100,7 @@ class UserController extends Controller
     public function LogInUser(Request $req)
     {
         $password = md5($req->password);
-        $user =  Users::where('email',$req->login)->
+        $user =  User::where('email',$req->login)->
         where('password',$password)->first();
         if (empty($user)){
             return response()->json(["status"=>"false","message"=>"Invalid Username or Password"],400);
@@ -108,32 +114,17 @@ class UserController extends Controller
 
     public function Authorization(Request $req)
     {
-        $user = Users::where('remember_token',$req->header('Authorization'))->first();
+        $user = User::where('remember_token',$req->header('Authorization'))->first();
         if (empty($user)){
             return response()->json(["status"=>"false","message"=>"Something Went Wrong"]);
         }
+
         return response()->json([
             "first_name" => $user->first_name,
             "last_name" => $user->last_name,
-            "avatar" => asset('images/avatar/'.$user->avatar),
+            "avatar" => asset('images/avatar/'. $user->avatar),
             "email"=>$user->email,
             "age" => $user->age,
         ]);
-    }
-
-    public function UploadImage(Request $req)
-    {
-        $user = Users::where('remember_token', $req->header('Authorization'))->first();
-        if (empty($user)) {
-            return response()->json(["status" => "false", "message" => "Something Went Wrong"]);
-        }
-        if ($req->hasFile('avatar')) {
-            $image_name = time() . "." . $req->file('avatar')->extension();
-            $req->avatar->move(public_path('images/avatar'), $image_name);
-            $user->avatar = $image_name;
-            $user->save();
-
-            return response()->json(['status'=>'success','image' => asset('images/avatar' . $image_name)]);
-        } else return response()->json(["fuck you"],400);
     }
 }
