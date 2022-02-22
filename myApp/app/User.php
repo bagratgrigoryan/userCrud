@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Images;
 
 class Users extends Model
 {
@@ -13,6 +14,10 @@ class Users extends Model
         'password',
         'age',
         'phone',
-        'avatar',
+        'avatar'
     ];
+    public function Users()
+    {
+        return $this->hasMany(Images::class, 'user_id');
+    }
 }
